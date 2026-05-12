@@ -110,8 +110,122 @@ section { padding: 6rem 2rem; position: relative; z-index: 2; }
 /* ── PROJECTS ── */
 #projects { background: var(--bg-secondary); }
 .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-.project-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: transform .3s, box-shadow .3s, border-color .3s; backdrop-filter: blur(8px); display: flex; flex-direction: column; }
-.project-card:hover { transform: translateY(-6px); border-color: var(--purple); box-shadow: 0 0 30px var(--purple-dim), 0 16px 40px rgba(0,0,0,.5); }
+
+/* Flip Card Container */
+.project-card {
+  perspective: 1200px;
+  cursor: pointer;
+  min-height: 400px;
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+}
+
+/* Inner rotating element */
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  transition: transform 0.75s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.project-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Front & Back shared */
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* FRONT */
+.flip-card-front {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  transition: border-color .3s, box-shadow .3s;
+}
+.project-card:not(.flipped):hover .flip-card-front {
+  border-color: var(--purple);
+  box-shadow: 0 0 30px var(--purple-dim), 0 16px 40px rgba(0,0,0,.5);
+}
+.flip-hint {
+  position: absolute;
+  top: .7rem;
+  right: .7rem;
+  z-index: 2;
+  font-size: .65rem;
+  font-family: var(--font-mono);
+  color: var(--gray);
+  background: rgba(10,15,30,0.6);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: .2rem .55rem;
+  letter-spacing: 1px;
+  opacity: .7;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.project-card:not(.flipped):hover .flip-hint { opacity: 1; color: var(--cyan); border-color: var(--cyan); }
+
+/* BACK */
+.flip-card-back {
+  background: linear-gradient(145deg, #0d1829 0%, #0a0f1e 60%, #120a1f 100%);
+  border: 1px solid rgba(139,92,246,0.45);
+  box-shadow: inset 0 0 60px rgba(139,92,246,0.06);
+  transform: rotateY(180deg);
+  padding: 1.8rem;
+  justify-content: space-between;
+}
+.flip-back-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.flip-back-icon { font-size: 2.4rem; line-height: 1; }
+.flip-back-label {
+  font-family: var(--font-mono); font-size: .65rem;
+  color: var(--purple); letter-spacing: 2px;
+  margin-bottom: .2rem;
+}
+.flip-back-title {
+  font-family: var(--font-head); font-size: 1.15rem;
+  font-weight: 700; color: var(--white); line-height: 1.2;
+}
+.flip-back-divider {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, var(--purple), transparent);
+  margin-bottom: 1rem; opacity: .4;
+}
+.flip-back-desc {
+  color: var(--gray); font-size: .875rem; line-height: 1.75;
+  margin-bottom: 1.2rem; flex: 1;
+}
+.flip-back-tech-label {
+  font-family: var(--font-mono); font-size: .65rem;
+  color: var(--cyan); letter-spacing: 2px; margin-bottom: .5rem;
+}
+.flip-back-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.4rem; }
+.flip-back-links { display: flex; gap: .75rem; align-items: center; justify-content: space-between; }
+.flip-back-links a {
+  font-size: .82rem; font-weight: 500; text-decoration: none;
+  padding: .5rem 1.1rem; border-radius: 8px;
+  transition: .2s; display: flex; align-items: center; gap: .4rem;
+}
+.flip-back-close {
+  font-family: var(--font-mono); font-size: .72rem;
+  color: var(--gray); background: none;
+  border: 1px solid var(--gray-dim); border-radius: 8px;
+  padding: .45rem .9rem; cursor: pointer;
+  transition: .2s; letter-spacing: 1px;
+}
+.flip-back-close:hover { color: var(--white); border-color: var(--white); }
+
+/* Reuse existing styles */
 .project-img { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; position: relative; overflow: hidden; }
 .project-img-bg { position: absolute; inset: 0; background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary)); }
 .project-img span { position: relative; z-index: 1; }
@@ -662,14 +776,27 @@ function getCreds() {
    ✅ API FUNCTIONS — Neon Database
 ════════════════════════════════════════════ */
 
+async function safeJson(res) {
+  const ct = res.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) throw new Error('JSON биш хариу ирлээ (backend холбогдоогүй байж магадгүй)');
+  return res.json();
+}
+
+function lsGet(key) {
+  try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
 async function loadData() {
   try {
     const [skRes, pjRes] = await Promise.all([
       fetch('/api/skills'),
       fetch('/api/projects')
     ]);
-    const skJson = await skRes.json();
-    const pjJson = await pjRes.json();
+    const skJson = await safeJson(skRes);
+    const pjJson = await safeJson(pjRes);
 
     skills = (skJson.data || []).map(s => ({
       id: s.id,
@@ -689,11 +816,27 @@ async function loadData() {
       github: p.github_url,
       demo: p.demo_url
     }));
+
+    /* Backend амжилттай — LocalStorage-д хадгал */
+    lsSet('pf_skills', skills);
+    lsSet('pf_projects', projects);
+
   } catch (err) {
-    console.error('Өгөгдөл ачаалахад алдаа:', err);
-    showToast('Өгөгдөл ачаалахад алдаа гарлаа', true);
-    skills = [];
-    projects = [];
+    console.warn('Backend API холбогдсонгүй, LocalStorage-с ачааллаж байна…', err);
+
+    /* LocalStorage-с fallback */
+    const cachedSkills   = lsGet('pf_skills');
+    const cachedProjects = lsGet('pf_projects');
+
+    if (cachedSkills || cachedProjects) {
+      skills   = cachedSkills   || [];
+      projects = cachedProjects || [];
+      showToast('⚠ Offline горим — хадгалсан өгөгдөл ачааллав');
+    } else {
+      skills   = [];
+      projects = [];
+      showToast('⚠ Backend холбогдоогүй байна — Vercel дээр deploy хийсэн эсэхийг шалгана уу', true);
+    }
   }
 }
 
@@ -894,21 +1037,14 @@ function renderProjects() {
   projects.forEach(pj => {
     const tagsHtml = (pj.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
     const tags2Html = (pj.tags2 || []).map(t => `<span class="tag purple">${t}</span>`).join('');
-    const ghLink = pj.github ? `<a href="${pj.github}" target="_blank" rel="noopener" class="link-gh">⬡ GitHub</a>` : '';
-    const demoLink = pj.demo ? `<a href="${pj.demo}" target="_blank" rel="noopener" class="link-demo">↗ Live Demo</a>` : '';
+    const ghFront = pj.github ? `<a href="${pj.github}" target="_blank" rel="noopener" class="link-gh" onclick="event.stopPropagation()">&#x2B21; GitHub</a>` : '';
+    const demoFront = pj.demo ? `<a href="${pj.demo}" target="_blank" rel="noopener" class="link-demo" onclick="event.stopPropagation()">&#x2197; Live Demo</a>` : '';
+    const ghBack = pj.github ? `<a href="${pj.github}" target="_blank" rel="noopener" class="link-gh" onclick="event.stopPropagation()">&#x2B21; GitHub</a>` : '';
+    const demoBack = pj.demo ? `<a href="${pj.demo}" target="_blank" rel="noopener" class="link-demo" onclick="event.stopPropagation()">&#x2197; Live Demo</a>` : '';
     const div = document.createElement('div');
     div.className = 'project-card reveal';
-    div.innerHTML = `
-      <div class="project-img">
-        <div class="project-img-bg" style="background:${pj.color}"></div>
-        <span>${pj.icon}</span>
-      </div>
-      <div class="project-body">
-        <div class="project-title">${pj.title}</div>
-        <div class="project-desc">${pj.desc}</div>
-        <div class="project-tags">${tagsHtml}${tags2Html}</div>
-        <div class="project-links">${ghLink}${demoLink}</div>
-      </div>`;
+    div.innerHTML = `<div class="flip-card-inner"><div class="flip-card-front"><div class="flip-hint">// дарж дэлгэрэнгүй харах</div><div class="project-img"><div class="project-img-bg" style="background:${pj.color}"></div><span>${pj.icon}</span></div><div class="project-body"><div class="project-title">${pj.title}</div><div class="project-desc">${pj.desc}</div><div class="project-tags">${tagsHtml}${tags2Html}</div><div class="project-links">${ghFront}${demoFront}</div></div></div><div class="flip-card-back"><div><div class="flip-back-label">// ТӨСЛИЙН ДЭЛГЭРЭНГҮЙ</div><div class="flip-back-header"><div class="flip-back-icon">${pj.icon}</div><div class="flip-back-title">${pj.title}</div></div><div class="flip-back-divider"></div><div class="flip-back-desc">${pj.desc}</div></div><div><div class="flip-back-tech-label">// ТЕХНОЛОГИ</div><div class="flip-back-tags">${tagsHtml}${tags2Html}</div><div class="flip-back-links"><div style="display:flex;gap:.6rem">${ghBack}${demoBack}</div><button class="flip-back-close" onclick="event.stopPropagation();this.closest('.project-card').classList.remove('flipped')">&#x21A9; Буцах</button></div></div></div></div>`;
+    div.addEventListener('click', () => div.classList.toggle('flipped'));
     grid.appendChild(div);
   });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
