@@ -444,7 +444,35 @@ footer span { color: var(--cyan); }
   display: flex; align-items: center; justify-content: center;
 }
 .admin-item-del:hover { background: rgba(248,113,113,0.2); }
+.admin-item-edit {
+  background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3);
+  color: var(--cyan); width: 30px; height: 30px; border-radius: 6px;
+  cursor: pointer; font-size: .9rem; transition: .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.admin-item-edit:hover { background: rgba(6,182,212,0.22); }
 .admin-empty { text-align: center; color: var(--gray); font-size: .85rem; padding: 2rem; font-family: var(--font-mono); }
+
+/* Edit mode banner */
+.edit-mode-banner {
+  display: none; background: rgba(6,182,212,0.08);
+  border: 1px solid var(--cyan); border-radius: 8px;
+  padding: .6rem 1rem; margin-bottom: .8rem;
+  font-family: var(--font-mono); font-size: .75rem; color: var(--cyan);
+  align-items: center; justify-content: space-between;
+}
+.edit-mode-banner.visible { display: flex; }
+.edit-cancel-btn {
+  background: none; border: 1px solid rgba(6,182,212,0.4);
+  color: var(--gray); font-family: var(--font-mono); font-size: .7rem;
+  padding: .2rem .6rem; border-radius: 6px; cursor: pointer; transition: .2s;
+}
+.edit-cancel-btn:hover { color: var(--white); border-color: var(--white); }
+
+/* Social link brand icons */
+.social-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; transition: border-color .2s, box-shadow .2s; flex-shrink: 0; }
+.social-icon svg { width: 18px; height: 18px; }
+.social-link:hover .social-icon { border-color: var(--cyan); box-shadow: 0 0 12px var(--cyan-dim); }
 
 /* ── Settings Tab ── */
 .settings-card { background: rgba(6,182,212,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.2rem; }
@@ -536,7 +564,11 @@ footer span { color: var(--cyan); }
 
     <!-- PROJECTS TAB -->
     <div class="admin-tab-pane" id="tab-projects">
-      <div class="admin-section-title">Төсөл нэмэх</div>
+      <div class="admin-section-title" id="pj-form-title">Төсөл нэмэх</div>
+      <div class="edit-mode-banner" id="pj-edit-banner">
+        <span>✏ Засах горим — өөрчлөлтөө оруулаад хадгална уу</span>
+        <button class="edit-cancel-btn" onclick="cancelEditProject()">✕ Цуцлах</button>
+      </div>
       <div class="admin-form">
         <div class="admin-form-row">
           <div class="af-group">
@@ -587,7 +619,7 @@ footer span { color: var(--cyan); }
             <input type="url" id="pj-demo" placeholder="https://...">
           </div>
         </div>
-        <button class="admin-add-btn" onclick="addProject()">＋ Төсөл нэмэх</button>
+        <button class="admin-add-btn" id="pj-submit-btn" onclick="addProject()">＋ Төсөл нэмэх</button>
       </div>
       <div class="admin-section-title">Одоогийн төслүүд</div>
       <div class="admin-items-list" id="projectsList"></div>
@@ -730,11 +762,51 @@ footer span { color: var(--cyan); }
         <h3>Хамтран ажиллацгаая</h3>
         <p>Санаа байна уу эсвэл зүгээр л мэндчилмээр байна уу? Чөлөөтэй холбоо бариарай — шинэ боломж, яриаг үргэлж тосон авдаг.</p>
         <div class="social-links">
-          <a href="mailto:ganzorigg009@gmail.com" class="social-link"><div class="social-icon">📧</div>ganzorigg009@gmail.com</a>
-          <a href="https://github.com/PASC0RE" target="_blank" rel="noopener" class="social-link"><div class="social-icon">🐙</div>github.com/PASC0RE</a>
-          <a href="https://www.facebook.com/pinplnk/" target="_blank" rel="noopener" class="social-link"><div class="social-icon">📘</div>Н.Ганзориг</a>
-          <a href="https://www.instagram.com/eo___to/" target="_blank" rel="noopener" class="social-link"><div class="social-icon">📸</div>@eo___to</a>
-          <a href="tel:+97689988786" class="social-link"><div class="social-icon">📱</div>+976 89988786</a>
+          <a href="mailto:ganzorigg009@gmail.com" class="social-link">
+            <div class="social-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 5H18C19.1046 5 20 5.89543 20 7V17C20 18.1046 19.1046 19 18 19H6C4.89543 19 4 18.1046 4 17V7C4 5.89543 4.89543 5 6 5Z" stroke="#EA4335" stroke-width="1.5"/>
+                <path d="M4 7L12 13L20 7" stroke="#EA4335" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>ganzorigg009@gmail.com
+          </a>
+          <a href="https://github.com/PASC0RE" target="_blank" rel="noopener" class="social-link">
+            <div class="social-icon">
+              <svg viewBox="0 0 24 24" fill="#e2e8f0" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+              </svg>
+            </div>github.com/PASC0RE
+          </a>
+          <a href="https://www.facebook.com/pinplnk/" target="_blank" rel="noopener" class="social-link">
+            <div class="social-icon">
+              <svg viewBox="0 0 24 24" fill="#1877F2" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971h-1.514c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+              </svg>
+            </div>Н.Ганзориг
+          </a>
+          <a href="https://www.instagram.com/eo___to/" target="_blank" rel="noopener" class="social-link">
+            <div class="social-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#f09433"/>
+                    <stop offset="25%" style="stop-color:#e6683c"/>
+                    <stop offset="50%" style="stop-color:#dc2743"/>
+                    <stop offset="75%" style="stop-color:#cc2366"/>
+                    <stop offset="100%" style="stop-color:#bc1888"/>
+                  </linearGradient>
+                </defs>
+                <path fill="url(#igGrad)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+              </svg>
+            </div>@eo___to
+          </a>
+          <a href="tel:+97689988786" class="social-link">
+            <div class="social-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1C9.61 21 3 14.39 3 6a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z" fill="#06b6d4"/>
+              </svg>
+            </div>+976 89988786
+          </a>
         </div>
       </div>
       <div class="reveal">
@@ -764,6 +836,7 @@ footer span { color: var(--cyan); }
 let isLoggedIn = false;
 let skills = [];
 let projects = [];
+let editingProjectId = null;
 
 const DEFAULT_CREDS = { email: 'ganzorigg009@gmail.com', password: 'Ganz@2026' };
 
@@ -886,6 +959,41 @@ async function deleteSkill(id) {
   }
 }
 
+function openEditProject(id) {
+  const pj = projects.find(p => p.id === id);
+  if (!pj) return;
+  editingProjectId = id;
+
+  document.getElementById('pj-icon').value  = pj.icon  || '';
+  document.getElementById('pj-title').value = pj.title || '';
+  document.getElementById('pj-desc').value  = pj.desc  || '';
+  document.getElementById('pj-tags').value  = (pj.tags  || []).join(', ');
+  document.getElementById('pj-tags2').value = (pj.tags2 || []).join(', ');
+  document.getElementById('pj-github').value = pj.github || '';
+  document.getElementById('pj-demo').value   = pj.demo   || '';
+
+  /* Өнгийг select-д тохируулах */
+  const sel = document.getElementById('pj-color');
+  for (let opt of sel.options) { if (opt.value === pj.color) { sel.value = pj.color; break; } }
+
+  document.getElementById('pj-edit-banner').classList.add('visible');
+  document.getElementById('pj-form-title').textContent = 'Төсөл засах';
+  document.getElementById('pj-submit-btn').textContent = '💾 Хадгалах';
+  document.getElementById('pj-submit-btn').style.background = 'linear-gradient(135deg,#06b6d4,#8b5cf6)';
+
+  /* Формруу scroll */
+  document.getElementById('pj-form-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelEditProject() {
+  editingProjectId = null;
+  ['pj-icon','pj-title','pj-desc','pj-tags','pj-tags2','pj-github','pj-demo'].forEach(f => document.getElementById(f).value = '');
+  document.getElementById('pj-edit-banner').classList.remove('visible');
+  document.getElementById('pj-form-title').textContent = 'Төсөл нэмэх';
+  document.getElementById('pj-submit-btn').textContent = '＋ Төсөл нэмэх';
+  document.getElementById('pj-submit-btn').style.background = '';
+}
+
 async function addProject() {
   const icon = document.getElementById('pj-icon').value.trim() || '🚀';
   const color = document.getElementById('pj-color').value;
@@ -900,11 +1008,37 @@ async function addProject() {
   const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
   const tags2 = tags2Raw ? tags2Raw.split(',').map(t => t.trim()).filter(Boolean) : [];
 
-  const btn = document.querySelector('#tab-projects .admin-add-btn');
+  const btn = document.getElementById('pj-submit-btn');
   btn.disabled = true;
   btn.textContent = 'Хадгалж байна...';
 
   try {
+    /* ── ЗАСАХ ГОРИМ ── */
+    if (editingProjectId !== null) {
+      const oldId = editingProjectId;
+      /* 1. Хуучин устгах */
+      await fetch(`/api/projects?id=${oldId}`, { method: 'DELETE' });
+      /* 2. Шинэ нэмэх */
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ icon, color, title, desc, tags, tags2, github, demo })
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Алдаа');
+
+      const p = json.data;
+      projects = projects.filter(x => x.id !== oldId);
+      projects.push({ id: p.id, icon, color, title, desc, tags, tags2, github, demo });
+      lsSet('pf_projects', projects);
+      cancelEditProject();
+      renderProjects();
+      renderAdminProjects();
+      showToast('✓ Төсөл шинэчлэгдлээ!');
+      return;
+    }
+
+    /* ── НЭМЭХ ГОРИМ ── */
     const res = await fetch('/api/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -925,6 +1059,7 @@ async function addProject() {
       github,
       demo
     });
+    lsSet('pf_projects', projects);
     renderProjects();
     renderAdminProjects();
     ['pj-icon','pj-title','pj-desc','pj-tags','pj-tags2','pj-github','pj-demo'].forEach(f => document.getElementById(f).value = '');
@@ -933,7 +1068,7 @@ async function addProject() {
     showToast('Алдаа: ' + err.message, true);
   } finally {
     btn.disabled = false;
-    btn.textContent = '＋ Төсөл нэмэх';
+    btn.textContent = editingProjectId !== null ? '💾 Хадгалах' : '＋ Төсөл нэмэх';
   }
 }
 
@@ -1083,6 +1218,7 @@ function renderAdminProjects() {
         <div class="admin-item-meta">${[...(pj.tags||[]),...(pj.tags2||[])].join(', ')}</div>
       </div>
       <div class="admin-item-actions">
+        <button class="admin-item-edit" onclick="openEditProject(${pj.id})" title="Засах">✏</button>
         <button class="admin-item-del" onclick="deleteProject(${pj.id})" title="Устгах">✕</button>
       </div>
     </div>`).join('');
