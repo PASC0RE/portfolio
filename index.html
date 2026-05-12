@@ -839,7 +839,7 @@ footer span { color: var(--cyan); }
 <footer>
   <p>Зохиогч <span>Н.Ганзориг</span> · <span>2026</span></p>
   <p style="margin-top:.4rem;font-size:.75rem;opacity:.5;font-family:var(--font-mono)">// ❤️ болон кофеогоор бүтээсэн</p>
-  <p class="footer-admin-hint" onclick="openAdminLogin()" title="Админ">// admin</p>
+
 </footer>
 
 <script>
@@ -1191,7 +1191,7 @@ function renderProjects() {
     const demoBack = pj.demo ? `<a href="${pj.demo}" target="_blank" rel="noopener" class="link-demo" onclick="event.stopPropagation()">&#x2197; Live Demo</a>` : '';
     const div = document.createElement('div');
     div.className = 'project-card reveal';
-    div.innerHTML = `<div class="flip-card-inner"><div class="flip-card-front"><div class="flip-hint">// дарж дэлгэрэнгүй харах</div><div class="project-img"><div class="project-img-bg" style="background:${pj.color}"></div><span>${pj.icon}</span></div><div class="project-body"><div class="project-title">${pj.title}</div><div class="project-tags" style="margin-top:.5rem">${tagsHtml}${tags2Html}</div><div class="project-links">${ghFront}${demoFront}</div></div></div><div class="flip-card-back"><div class="flip-back-top"><div class="flip-back-label">// ТӨСЛИЙН ДЭЛГЭРЭНГҮЙ</div><div class="flip-back-header"><div class="flip-back-icon">${pj.icon}</div><div class="flip-back-title">${pj.title}</div></div><div class="flip-back-divider"></div><div class="flip-back-desc">${pj.desc}</div></div><div class="flip-back-bottom"><div class="flip-back-tech-label">// ТЕХНОЛОГИ</div><div class="flip-back-tags">${tagsHtml}${tags2Html}</div><div class="flip-back-links"><div style="display:flex;gap:.6rem">${ghBack}${demoBack}</div><button class="flip-back-close" onclick="event.stopPropagation();this.closest('.project-card').classList.remove('flipped')">&#x21A9; Буцах</button></div></div></div></div>`;
+    div.innerHTML = `<div class="flip-card-inner"><div class="flip-card-front"><div class="project-img"><div class="project-img-bg" style="background:${pj.color}"></div><span>${pj.icon}</span></div><div class="project-body"><div class="project-title">${pj.title}</div><div class="project-tags" style="margin-top:.5rem">${tagsHtml}${tags2Html}</div><div class="project-links">${ghFront}${demoFront}</div></div></div><div class="flip-card-back"><div class="flip-back-top"><div class="flip-back-label">// ТӨСЛИЙН ДЭЛГЭРЭНГҮЙ</div><div class="flip-back-header"><div class="flip-back-icon">${pj.icon}</div><div class="flip-back-title">${pj.title}</div></div><div class="flip-back-divider"></div><div class="flip-back-desc">${pj.desc}</div></div><div class="flip-back-bottom"><div class="flip-back-tech-label">// ТЕХНОЛОГИ</div><div class="flip-back-tags">${tagsHtml}${tags2Html}</div><div class="flip-back-links"><div style="display:flex;gap:.6rem">${ghBack}${demoBack}</div></div></div></div></div>`;
     div.addEventListener('click', () => div.classList.toggle('flipped'));
     grid.appendChild(div);
   });
