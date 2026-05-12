@@ -115,7 +115,7 @@ section { padding: 6rem 2rem; position: relative; z-index: 2; }
 .project-card {
   perspective: 1200px;
   cursor: pointer;
-  min-height: 400px;
+  height: 400px;
   background: transparent;
   border: none;
   border-radius: 16px;
@@ -125,8 +125,7 @@ section { padding: 6rem 2rem; position: relative; z-index: 2; }
 .flip-card-inner {
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 400px;
+  height: 400px;
   transition: transform 0.75s cubic-bezier(0.4, 0.2, 0.2, 1);
   transform-style: preserve-3d;
 }
@@ -183,8 +182,22 @@ section { padding: 6rem 2rem; position: relative; z-index: 2; }
   box-shadow: inset 0 0 60px rgba(139,92,246,0.06);
   transform: rotateY(180deg);
   padding: 1.8rem;
-  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
 }
+/* Дээд хэсэг — scroll болно */
+.flip-back-top {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: .25rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139,92,246,0.4) transparent;
+}
+.flip-back-top::-webkit-scrollbar { width: 3px; }
+.flip-back-top::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.4); border-radius: 2px; }
+/* Доод хэсэг — үргэлж харагдана */
+.flip-back-bottom { flex-shrink: 0; padding-top: .8rem; }
 .flip-back-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
 .flip-back-icon { font-size: 2.4rem; line-height: 1; }
 .flip-back-label {
@@ -1178,7 +1191,7 @@ function renderProjects() {
     const demoBack = pj.demo ? `<a href="${pj.demo}" target="_blank" rel="noopener" class="link-demo" onclick="event.stopPropagation()">&#x2197; Live Demo</a>` : '';
     const div = document.createElement('div');
     div.className = 'project-card reveal';
-    div.innerHTML = `<div class="flip-card-inner"><div class="flip-card-front"><div class="flip-hint">// дарж дэлгэрэнгүй харах</div><div class="project-img"><div class="project-img-bg" style="background:${pj.color}"></div><span>${pj.icon}</span></div><div class="project-body"><div class="project-title">${pj.title}</div><div class="project-desc">${pj.desc}</div><div class="project-tags">${tagsHtml}${tags2Html}</div><div class="project-links">${ghFront}${demoFront}</div></div></div><div class="flip-card-back"><div><div class="flip-back-label">// ТӨСЛИЙН ДЭЛГЭРЭНГҮЙ</div><div class="flip-back-header"><div class="flip-back-icon">${pj.icon}</div><div class="flip-back-title">${pj.title}</div></div><div class="flip-back-divider"></div><div class="flip-back-desc">${pj.desc}</div></div><div><div class="flip-back-tech-label">// ТЕХНОЛОГИ</div><div class="flip-back-tags">${tagsHtml}${tags2Html}</div><div class="flip-back-links"><div style="display:flex;gap:.6rem">${ghBack}${demoBack}</div><button class="flip-back-close" onclick="event.stopPropagation();this.closest('.project-card').classList.remove('flipped')">&#x21A9; Буцах</button></div></div></div></div>`;
+    div.innerHTML = `<div class="flip-card-inner"><div class="flip-card-front"><div class="flip-hint">// дарж дэлгэрэнгүй харах</div><div class="project-img"><div class="project-img-bg" style="background:${pj.color}"></div><span>${pj.icon}</span></div><div class="project-body"><div class="project-title">${pj.title}</div><div class="project-tags" style="margin-top:.5rem">${tagsHtml}${tags2Html}</div><div class="project-links">${ghFront}${demoFront}</div></div></div><div class="flip-card-back"><div class="flip-back-top"><div class="flip-back-label">// ТӨСЛИЙН ДЭЛГЭРЭНГҮЙ</div><div class="flip-back-header"><div class="flip-back-icon">${pj.icon}</div><div class="flip-back-title">${pj.title}</div></div><div class="flip-back-divider"></div><div class="flip-back-desc">${pj.desc}</div></div><div class="flip-back-bottom"><div class="flip-back-tech-label">// ТЕХНОЛОГИ</div><div class="flip-back-tags">${tagsHtml}${tags2Html}</div><div class="flip-back-links"><div style="display:flex;gap:.6rem">${ghBack}${demoBack}</div><button class="flip-back-close" onclick="event.stopPropagation();this.closest('.project-card').classList.remove('flipped')">&#x21A9; Буцах</button></div></div></div></div>`;
     div.addEventListener('click', () => div.classList.toggle('flipped'));
     grid.appendChild(div);
   });
